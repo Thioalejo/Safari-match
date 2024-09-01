@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Board : MonoBehaviour
@@ -140,5 +141,73 @@ public class Board : MonoBehaviour
         }
 
         return false;
+    }
+
+    //PAra buscar piezas para conseguir los mach en una sola direccióin
+    public List<Piece> GetMatchByDirection(int xpos, int ypos, Vector2 direction, int minPieces = 3)
+    {
+        List<Piece> matches = new List<Piece>();
+        Piece startPiece = Pieces[xpos, ypos];
+        matches.Add(startPiece);
+
+        int nextX;
+        int nextY;
+        int maxVal = width > height ? width : height;
+
+        for (int i = 1; i < maxVal; i++)
+        {
+            nextX = xpos + ((int)direction.x * i);
+            nextY = ypos + ((int)direction.y * i);
+
+            //Validamos si las posiciones son menores que el archo y largo respectivamente
+            if (nextX >= 0 && nextX < width && nextY >= 0 && nextY < height)
+            {
+                var nextPiece = Pieces[nextX, nextY];
+                if (nextPiece != null & nextPiece.pieceType == startPiece.pieceType)
+                {
+                    matches.Add(nextPiece);
+                }//Si no es una pieza del mismo tipo se rompe
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        if(matches.Count>= minPieces)
+        {
+            return matches;
+        }
+
+        return null;
+    }
+
+    public List<Piece> GetMatchByPiece(int xpos, int ypos, int minPieces = 3)
+    {
+        var upMarchs = GetMatchByDirection(xpos, ypos, new Vector2(0, 1), 2);
+        var downMarchs = GetMatchByDirection(xpos, ypos, new Vector2(0, -1), 2);
+        var rightMarchs = GetMatchByDirection(xpos, ypos, new Vector2(1, 0), 2);
+        var leftMarchs = GetMatchByDirection(xpos, ypos, new Vector2(-1, 0), 2);
+
+        if (upMarchs == null) upMarchs = new List<Piece>();
+        if (downMarchs == null) upMarchs = new List<Piece>();
+        if (rightMarchs == null) upMarchs = new List<Piece>();
+        if (leftMarchs == null) upMarchs = new List<Piece>();
+
+        var verticalMatche = upMarchs.Union(downMarchs).ToList();
+        var horizontallMatche = leftMarchs.Union(rightMarchs).ToList();
+
+        var foundMarches = new List<Piece>();
+
+        if (verticalMatche.Count >= minPieces)
+        {
+            foundMarches = foundMarches.Union(verticalMatche).ToList();
+        }
+        if (horizontallMatche.Count >= minPieces)
+        {
+            foundMarches = foundMarches.Union(horizontallMatche).ToList();
+        }
+
+        return foundMarches;
     }
 }
