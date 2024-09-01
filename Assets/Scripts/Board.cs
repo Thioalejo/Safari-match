@@ -10,7 +10,9 @@ public class Board : MonoBehaviour
     public GameObject tileObject;
 
     //PAra personalizar la posision y ortografico de la camara
+    //PAra hacer Zoom en la camara
     public float cameraSizeOffset;
+    //Para mover las cuadriculas segun nos convenga, arriba o abajo
     public float cameraVerticalOffset;
 
     // Start is called before the first frame update
@@ -44,6 +46,9 @@ public class Board : MonoBehaviour
             {
                 var cuadriculaAInstanciar = Instantiate(tileObject, new Vector3(x, y, -5), Quaternion.identity);
                 cuadriculaAInstanciar.transform.parent = transform;
+
+                //quiero obtener acceso de su componenete de tipo Tile
+                cuadriculaAInstanciar.GetComponent<Tile>()?.Setup(x, y, this);
             }
         }
     }
