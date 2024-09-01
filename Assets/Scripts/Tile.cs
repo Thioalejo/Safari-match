@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Tile : MonoBehaviour
 {
     // con esto podemos llevar cuenta de que espacio representa cada tile que tengamos
