@@ -16,4 +16,21 @@ public class Tile : MonoBehaviour
         y = y_;
         board = board_;
     }
+
+    //Se agrega el input del mouse para detectar los clics
+
+    public void OnMouseDown()
+    {
+        board.TileDown(this);
+    }
+
+    public void OnMouseEnter()
+    {
+        board.TileOver(this);
+    }
+
+    private void OnMouseUp()
+    {
+        board.TileUp(this);
+    }
 }
