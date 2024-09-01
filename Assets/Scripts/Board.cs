@@ -25,6 +25,7 @@ public class Board : MonoBehaviour
     Tile startTile;
     Tile endTile;
 
+    bool swappingPieces = false;
 
     // Start is called before the first frame update
     void Start()
@@ -105,14 +106,14 @@ public class Board : MonoBehaviour
     {
         if(startTile!=null && endTile != null && IsCloseTo(startTile, endTile))
         {
-            SwapTiles();
+            StartCoroutine(SwapTiles());
         }
-        startTile = null;
-        endTile = null;
+       // startTile = null;
+       // endTile = null;
     }
 
-    //Para actualizar el sistema de coordenadas de los arrays de 2 dimensiones creados arriba
-    private void SwapTiles()
+    //Para actualizar el sistema de coordenadas de los arrays de 2 dimensiones creados arriba , se convierte en IEnumerable para que el prceso espere y no lo haga de inmediato y el usuario pueda ver
+    IEnumerator SwapTiles()
     {
         //Obtenemos la referencia de las pizas (posicion)
         var StartPiece = Pieces[startTile.x, startTile.y];
@@ -126,6 +127,42 @@ public class Board : MonoBehaviour
         Pieces[startTile.x, startTile.y] = EndPiece;
         Pieces[endTile.x, endTile.y] = StartPiece;
 
+        yield return new WaitForSeconds(0.6f);
+
+        bool foundMatch = false;
+
+        var startMatches = GetMatchByPiece(startTile.x, startTile.y, 3);
+        var endMaches = GetMatchByPiece(endTile.x, endTile.y, 3);
+
+
+        startMatches.ForEach(piece =>
+        {
+            foundMatch = true;
+            Pieces[piece.x, piece.y] = null;
+            Destroy(piece.gameObject);
+        });
+
+        endMaches.ForEach(piece =>
+        {
+            foundMatch = true;
+            Pieces[piece.x, piece.y] = null;
+            Destroy(piece.gameObject);
+        });
+
+        //PAra devolver piezas a su posicion origianl si no  encuentra marches
+        if (!foundMatch)
+        {
+            StartPiece.Move(startTile.x, startTile.y);
+            EndPiece.Move(endTile.x, endTile.y);
+            Pieces[startTile.x, startTile.y] = StartPiece;
+            Pieces[endTile.x, endTile.y] = EndPiece;
+        }
+
+         startTile = null;
+         endTile = null;
+        swappingPieces = false;
+
+        yield return null;
     }
 
     public bool IsCloseTo(Tile start, Tile end)
@@ -190,9 +227,9 @@ public class Board : MonoBehaviour
         var leftMarchs = GetMatchByDirection(xpos, ypos, new Vector2(-1, 0), 2);
 
         if (upMarchs == null) upMarchs = new List<Piece>();
-        if (downMarchs == null) upMarchs = new List<Piece>();
-        if (rightMarchs == null) upMarchs = new List<Piece>();
-        if (leftMarchs == null) upMarchs = new List<Piece>();
+        if (downMarchs == null) downMarchs = new List<Piece>();
+        if (rightMarchs == null) rightMarchs = new List<Piece>();
+        if (leftMarchs == null) leftMarchs = new List<Piece>();
 
         var verticalMatche = upMarchs.Union(downMarchs).ToList();
         var horizontallMatche = leftMarchs.Union(rightMarchs).ToList();
